@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>StoreVision</title>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <strong>StoreVision</strong> |
+    <button onclick="mostrarTab('dashboard')">Dashboard</button>
+    <button onclick="mostrarTab('ventas')">Ventas</button>
+    <button onclick="mostrarTab('inventario')">Inventario</button>
+    <button onclick="mostrarTab('reportes')">Reportes</button>
+    | <span id="userInfo">No autenticado</span>
+    <button onclick="logout()">Cerrar Sesión</button>
+</nav>
+
+<hr>
+
+<!-- ─────────────── LOGIN ─────────────── -->
+<div id="loginSection">
+    <h2>Iniciar Sesión</h2>
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="password" id="password" placeholder="Contraseña"><br><br>
+    <button onclick="handleLogin()">Ingresar</button>
+    <p id="loginError" style="color:red;"></p>
+</div>
+
+<!-- ─────────────── TABS ─────────────── -->
+<div id="appContent" style="display:none;">
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard">
+        <h2>Dashboard</h2>
+        <p>Ventas hoy: <strong id="ventasHoy">0</strong></p>
+        <p>Monto total: <strong id="montoHoy">$0</strong></p>
+        <p>Alertas de inventario: <strong id="alertasInventario">0</strong></p>
+        <button onclick="cargarDashboard()">Actualizar</button>
+    </div>
+
+    <!-- VENTAS -->
+    <div id="tab-ventas" style="display:none;">
+        <h2>Ventas</h2>
+
+        <h3>Nueva Venta</h3>
+        <div id="itemsVenta">
+            <div class="item-venta">
+                <select class="producto-select">
+                    <option value="">Seleccionar producto</option>
+                </select>
+                Cantidad: <input type="number" class="cantidad" value="1" min="1">
+            </div>
+        </div>
+        <button onclick="agregarItemVenta()">+ Agregar producto</button><br><br>
+        <button onclick="registrarVenta()">Confirmar Venta</button>
+
+        <hr>
+
+        <h3>Ventas del Día</h3>
+        Fecha: <input type="date" id="fechaFiltroVentas">
+        <button onclick="cargarVentas()">Filtrar</button>
+        <table border="1" id="tablaVentas">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Vendedor</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="bodyVentas"></tbody>
+        </table>
+
+        <!-- Anular venta -->
+        <div id="anularSection" style="display:none;">
+            <h4>Anular Venta <span id="ventaIdAnularLabel"></span></h4>
+            Motivo: <input type="text" id="motivoAnular"><br><br>
+            <button onclick="confirmarAnulacion()">Confirmar Anulación</button>
+            <button onclick="document.getElementById('anularSection').style.display='none'">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div id="tab-inventario" style="display:none;">
+        <h2>Inventario</h2>
+
+        <h3>Alertas de Stock Bajo</h3>
+        <div id="alertasInventarioDetalle"></div>
+
+        <h3>Productos</h3>
+        <button onclick="cargarInventario()">Actualizar</button>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Stock Actual</th>
+                    <th>Stock Mínimo</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody id="bodyInventario"></tbody>
+        </table>
+
+        <hr>
+
+        <h3>Registrar Movimiento</h3>
+        Producto:
+        <select id="productoMovimiento">
+            <option value="">Seleccionar producto</option>
+        </select><br><br>
+        Tipo:
+        <select id="tipoMovimiento">
+            <option value="entrada">Entrada</option>
+            <option value="salida">Salida</option>
+        </select><br><br>
+        Cantidad: <input type="number" id="cantidadMovimiento" min="1" value="1"><br><br>
+        Motivo: <input type="text" id="motivoMovimiento"><br><br>
+        <button onclick="registrarMovimiento()">Registrar</button>
+
+        <hr>
+
+        <h3>Nuevo Producto</h3>
+        Código: <input type="text" id="codigoProducto"><br><br>
+        Nombre: <input type="text" id="nombreProducto"><br><br>
+        Categoría: <input type="text" id="categoriaProducto"><br><br>
+        Precio venta: <input type="number" id="precioProducto" step="0.01"><br><br>
+        Costo: <input type="number" id="costoProducto" step="0.01"><br><br>
+        Stock mínimo: <input type="number" id="stockMinimoProducto" value="5"><br><br>
+        <button onclick="crearProducto()">Crear Producto</button>
+
+        <hr>
+
+        <h3>Historial de Movimientos</h3>
+        Desde: <input type="date" id="fechaInicioHistorial">
+        Hasta: <input type="date" id="fechaFinHistorial">
+        <button onclick="cargarHistorial()">Filtrar</button>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Stock Anterior</th>
+                    <th>Stock Nuevo</th>
+                    <th>Motivo</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody id="bodyHistorial"></tbody>
+        </table>
+    </div>
+
+    <!-- REPORTES -->
+    <div id="tab-reportes" style="display:none;">
+        <h2>Reportes</h2>
+
+        Desde: <input type="date" id="fechaInicioReporte">
+        Hasta: <input type="date" id="fechaFinReporte">
+        <button onclick="cargarReportes()">Generar</button>
+
+        <hr>
+
+        <h3>Balance Económico</h3>
+        <div id="balanceEconomico">-</div>
+
+        <h3>Indicadores de Ventas</h3>
+        <div id="indicadoresVentas">-</div>
+
+        <h3>Productos Más Vendidos</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Unidades</th>
+                    <th>Ingresos</th>
+                </tr>
+            </thead>
+            <tbody id="bodyTopProductos"></tbody>
+        </table>
+    </div>
+
+</div><!-- fin appContent -->
+
+
+<script>
+    let sessionId = localStorage.getItem('sessionId');
+    let usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+    let productos = [];
+    let ventaIdAnular = null;
+
+    // ─── INIT ───
+    document.addEventListener('DOMContentLoaded', function () {
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fechaFiltroVentas').value = hoy;
+        document.getElementById('fechaInicioHistorial').value = hoy;
+        document.getElementById('fechaFinHistorial').value = hoy;
+        document.getElementById('fechaInicioReporte').value = hoy;
+        document.getElementById('fechaFinReporte').value = hoy;
+
+        if (sessionId && usuario) {
+            mostrarApp();
+        }
+    });
+
+    // ─── TABS ───
+    function mostrarTab(tab) {
+        ['dashboard', 'ventas', 'inventario', 'reportes'].forEach(t => {
+            document.getElementById(`tab-${t}`).style.display = 'none';
+        });
+        document.getElementById(`tab-${tab}`).style.display = 'block';
+
+        if (tab === 'dashboard') cargarDashboard();
+        if (tab === 'ventas') { cargarProductosVentas(); cargarVentas(); }
+        if (tab === 'inventario') cargarInventario();
+    }
+
+    function mostrarApp() {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('appContent').style.display = 'block';
+        document.getElementById('userInfo').textContent = `${usuario.nombre} (${usuario.rol})`;
+        mostrarTab('dashboard');
+    }
+
+    // ─── AUTH ───
+    async function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            sessionId = data.session_id;
+            usuario = data.usuario;
+            localStorage.setItem('sessionId', sessionId);
+            localStorage.setItem('usuario', JSON.stringify(usuario));
+            mostrarApp();
+        } else {
+            const err = await res.json();
+            document.getElementById('loginError').textContent = err.detail || 'Error en login';
+        }
+    }
+
+    function logout() {
+        fetch('/api/logout', { method: 'POST', headers: { 'session-id': sessionId } });
+        localStorage.removeItem('sessionId');
+        localStorage.removeItem('usuario');
+        sessionId = null;
+        usuario = null;
+        document.getElementById('appContent').style.display = 'none';
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('userInfo').textContent = 'No autenticado';
+    }
+
+    // ─── DASHBOARD ───
+    async function cargarDashboard() {
+        const resVentas = await fetch('/api/ventas/consolidado', { headers: { 'session-id': sessionId } });
+        if (resVentas.ok) {
+            const data = await resVentas.json();
+            document.getElementById('ventasHoy').textContent = data.total_ventas || 0;
+            document.getElementById('montoHoy').textContent = `$${(data.monto_total || 0).toFixed(2)}`;
+        }
+
+        const resAlertas = await fetch('/api/inventario/alertas', { headers: { 'session-id': sessionId } });
+        if (resAlertas.ok) {
+            const alertas = await resAlertas.json();
+            document.getElementById('alertasInventario').textContent = alertas.length || 0;
+        }
+    }
+
+    // ─── VENTAS ───
+    async function cargarProductosVentas() {
+        const res = await fetch('/api/productos', { headers: { 'session-id': sessionId } });
+        if (res.ok) {
+            productos = await res.json();
+            actualizarSelectsVenta();
+        }
+    }
+
+    function actualizarSelectsVenta() {
+        document.querySelectorAll('.producto-select').forEach(select => {
+            const val = select.value;
+            select.innerHTML = '<option value="">Seleccionar producto</option>';
+            productos.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.dataset.precio = p.precio_venta;
+                opt.textContent = `${p.nombre} - $${p.precio_venta} (Stock: ${p.stock_actual})`;
+                if (p.stock_actual <= 0) opt.disabled = true;
+                select.appendChild(opt);
+            });
+            select.value = val;
+        });
+    }
+
+    function agregarItemVenta() {
+        const div = document.createElement('div');
+        div.className = 'item-venta';
+        div.innerHTML = `
+            <select class="producto-select"><option value="">Seleccionar producto</option></select>
+            Cantidad: <input type="number" class="cantidad" value="1" min="1">
+            <button onclick="this.parentElement.remove()">Eliminar</button>
+        `;
+        document.getElementById('itemsVenta').appendChild(div);
+        actualizarSelectsVenta();
+    }
+
+    async function registrarVenta() {
+        const items = [];
+        document.querySelectorAll('.item-venta').forEach(item => {
+            const productoId = item.querySelector('.producto-select').value;
+            const cantidad = parseInt(item.querySelector('.cantidad').value);
+            if (productoId && cantidad > 0) {
+                items.push({ producto_id: parseInt(productoId), cantidad });
+            }
+        });
+
+        if (items.length === 0) { alert('Agregue al menos un producto'); return; }
+
+        const res = await fetch('/api/ventas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'session-id': sessionId },
+            body: JSON.stringify({ items })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert('Venta registrada: ' + data.mensaje);
+            cargarVentas();
+            cargarProductosVentas();
+        } else {
+            alert('Error: ' + data.detail);
+        }
+    }
+
+    async function cargarVentas() {
+        const fecha = document.getElementById('fechaFiltroVentas').value;
+        const res = await fetch(`/api/ventas?fecha=${fecha}`, { headers: { 'session-id': sessionId } });
+        if (!res.ok) return;
+
+        const ventas = await res.json();
+        const tbody = document.getElementById('bodyVentas');
+        tbody.innerHTML = '';
+        ventas.forEach(v => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${v.id}</td>
+                <td>${new Date(v.fecha_venta).toLocaleString()}</td>
+                <td>$${v.total.toFixed(2)}</td>
+                <td>${v.estado}</td>
+                <td>${v.usuario?.nombre || '-'}</td>
+                <td>${usuario.rol === 'administradora' && v.estado === 'completada'
+                    ? `<button onclick="abrirAnular(${v.id})">Anular</button>`
+                    : '-'
+                }</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function abrirAnular(id) {
+        ventaIdAnular = id;
+        document.getElementById('ventaIdAnularLabel').textContent = `#${id}`;
+        document.getElementById('anularSection').style.display = 'block';
+    }
+
+    async function confirmarAnulacion() {
+        const motivo = document.getElementById('motivoAnular').value;
+        if (!motivo) { alert('Ingrese un motivo'); return; }
+
+        const res = await fetch(`/api/ventas/${ventaIdAnular}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'session-id': sessionId },
+            body: JSON.stringify({ motivo })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.mensaje);
+            document.getElementById('anularSection').style.display = 'none';
+            document.getElementById('motivoAnular').value = '';
+            cargarVentas();
+        } else {
+            alert('Error: ' + data.detail);
+        }
+    }
+
+    // ─── INVENTARIO ───
+    async function cargarInventario() {
+        // Alertas
+        const resAlertas = await fetch('/api/inventario/alertas', { headers: { 'session-id': sessionId } });
+        if (resAlertas.ok) {
+            const alertas = await resAlertas.json();
+            const div = document.getElementById('alertasInventarioDetalle');
+            div.innerHTML = alertas.length === 0
+                ? '<p>Sin alertas</p>'
+                : alertas.map(a => `<p>⚠ ${a.nombre} - Stock: ${a.stock_actual} / Mínimo: ${a.stock_minimo}</p>`).join('');
+        }
+
+        // Productos
+        const res = await fetch('/api/inventario/productos', { headers: { 'session-id': sessionId } });
+        if (!res.ok) return;
+
+        const prods = await res.json();
+        productos = prods;
+
+        const tbody = document.getElementById('bodyInventario');
+        tbody.innerHTML = '';
+        prods.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${p.codigo}</td>
+                <td>${p.nombre}</td>
+                <td>${p.categoria}</td>
+                <td>${p.stock_actual}</td>
+                <td>${p.stock_minimo}</td>
+                <td>$${p.precio_venta}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Actualizar select de movimientos
+        const select = document.getElementById('productoMovimiento');
+        select.innerHTML = '<option value="">Seleccionar producto</option>';
+        prods.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = `${p.nombre} (Stock: ${p.stock_actual})`;
+            select.appendChild(opt);
+        });
+    }
+
+    async function registrarMovimiento() {
+        const datos = {
+            producto_id: parseInt(document.getElementById('productoMovimiento').value),
+            tipo_movimiento: document.getElementById('tipoMovimiento').value,
+            cantidad: parseInt(document.getElementById('cantidadMovimiento').value),
+            motivo: document.getElementById('motivoMovimiento').value
+        };
+
+        if (!datos.producto_id || !datos.cantidad || !datos.motivo) {
+            alert('Complete todos los campos'); return;
+        }
+
+        const res = await fetch('/api/inventario/movimientos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'session-id': sessionId },
+            body: JSON.stringify(datos)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.mensaje);
+            cargarInventario();
+        } else {
+            alert('Error: ' + data.detail);
+        }
+    }
+
+    async function crearProducto() {
+        const datos = {
+            codigo: document.getElementById('codigoProducto').value,
+            nombre: document.getElementById('nombreProducto').value,
+            categoria: document.getElementById('categoriaProducto').value,
+            precio_venta: parseFloat(document.getElementById('precioProducto').value),
+            costo: parseFloat(document.getElementById('costoProducto').value),
+            stock_minimo: parseInt(document.getElementById('stockMinimoProducto').value)
+        };
+
+        const res = await fetch('/api/productos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'session-id': sessionId },
+            body: JSON.stringify(datos)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.mensaje);
+            cargarInventario();
+        } else {
+            alert('Error: ' + data.detail);
+        }
+    }
+
+    async function cargarHistorial() {
+        const fechaInicio = document.getElementById('fechaInicioHistorial').value;
+        const fechaFin = document.getElementById('fechaFinHistorial').value;
+
+        const res = await fetch(`/api/inventario/historial?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`, {
+            headers: { 'session-id': sessionId }
+        });
+        if (!res.ok) return;
+
+        const historial = await res.json();
+        const tbody = document.getElementById('bodyHistorial');
+        tbody.innerHTML = '';
+        historial.forEach(m => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${new Date(m.fecha_movimiento).toLocaleString()}</td>
+                <td>${m.producto.nombre}</td>
+                <td>${m.tipo_movimiento}</td>
+                <td>${m.cantidad}</td>
+                <td>${m.stock_anterior}</td>
+                <td>${m.stock_nuevo}</td>
+                <td>${m.motivo}</td>
+                <td>${m.usuario.nombre}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ─── REPORTES ───
+    async function cargarReportes() {
+        const fechaInicio = document.getElementById('fechaInicioReporte').value;
+        const fechaFin = document.getElementById('fechaFinReporte').value;
+
+        // Balance
+        const resBalance = await fetch(`/api/reportes/balance?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`, {
+            headers: { 'session-id': sessionId }
+        });
+        if (resBalance.ok) {
+            const b = await resBalance.json();
+            document.getElementById('balanceEconomico').innerHTML = b.error ? b.error : `
+                Total ventas: $${b.resumen_ventas?.total_ventas || 0} |
+                Transacciones: ${b.resumen_ventas?.cantidad_ventas || 0} |
+                Utilidad bruta: $${b.rentabilidad?.utilidad_bruta || 0} |
+                Margen: ${b.rentabilidad?.margen_utilidad || 0}%
+            `;
+        }
+
+        // Indicadores
+        const resIndicadores = await fetch(`/api/reportes/indicadores-ventas?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`, {
+            headers: { 'session-id': sessionId }
+        });
+        if (resIndicadores.ok) {
+            const ind = await resIndicadores.json();
+            const c = ind.comparativa;
+            document.getElementById('indicadoresVentas').innerHTML = `
+                Periodo actual: $${c.periodo_actual} |
+                Periodo anterior: $${c.periodo_anterior} |
+                Variación: ${c.variacion_porcentaje}%
+                ${c.alerta_caida ? '⚠ Alerta caída de ventas' : ''}
+            `;
+        }
+
+        // Top productos
+        const resProductos = await fetch(`/api/reportes/productos-mas-vendidos?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`, {
+            headers: { 'session-id': sessionId }
+        });
+        if (resProductos.ok) {
+            const prods = await resProductos.json();
+            const tbody = document.getElementById('bodyTopProductos');
+            tbody.innerHTML = '';
+            prods.forEach((p, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td>${p.nombre}</td>
+                    <td>${p.categoria}</td>
+                    <td>${p.total_vendido}</td>
+                    <td>$${p.total_ingresos.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
