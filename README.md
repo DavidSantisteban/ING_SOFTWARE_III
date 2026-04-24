@@ -84,7 +84,7 @@ La Vista no contiene lógica de negocio. El Controlador no sabe nada de HTTP. El
 
 Antes de empezar necesitas tener instalado:
 
-- **Python 3.10 o superior** — verificar con `python --version` o `python3 --version`
+- **Python 3.12 (versiones superiores de alguna manera generan incompatibilidad con las dependencias)** — verificar con `python --version` o `python3 --version`
 - **Git** — verificar con `git --version`
 
 ---
@@ -104,12 +104,12 @@ Un entorno virtual aísla las dependencias del proyecto para que no interfieran 
 
 **En macOS / Linux:**
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 ```
 
 **En Windows:**
 ```bash
-python -m venv .venv
+python3.12 -m venv .venv
 ```
 
 ### 3. Activar el entorno virtual
@@ -146,6 +146,7 @@ Esto instala FastAPI, SQLAlchemy, bcrypt, pytest y el resto de librerías necesa
 ```bash
 python main.py
 ```
+Importante estar en la carpeta Prototipo1.
 
 La primera vez que arranques, el sistema crea automáticamente la base de datos con dos usuarios de prueba y 12 productos colombianos de ejemplo. Verás en consola:
 
