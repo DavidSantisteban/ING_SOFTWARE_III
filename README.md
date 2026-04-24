@@ -94,8 +94,8 @@ Antes de empezar necesitas tener instalado:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/storevision.git
-cd storevision
+git clone https://github.com/DavidSantisteban/ING_SOFTWARE_III.git
+cd ING_SOFTWARE_III
 ```
 
 Cambiar al branch test/tests con el comando *git switch test/tests* para poder visualizar tanto la aplicacion principal como la parte de las pruebas.
