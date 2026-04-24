@@ -9,19 +9,20 @@ Base de datos: SQLite en memoria, se crea limpia antes de cada test y se
 destruye al terminar, garantizando que los tests no se afecten entre sí.
 """
 
+import os
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-import sys, os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from models.database import Base, obtener_db
-from models import modelos
 from controllers.auth_controller import ControladorAutenticacion
-
+from models import modelos
+from models.database import Base, obtener_db
 
 # BASE DE DATOS DE PRUEBA
 
@@ -52,8 +53,8 @@ def client(db):
     """
     Cliente HTTP que simula peticiones al servidor sin levantarlo realmente.
     """
-    from views.api_views import router, usuarios_activos
     from fastapi import FastAPI
+    from views.api_views import router, usuarios_activos
 
     app_prueba = FastAPI()
     app_prueba.include_router(router)
@@ -63,7 +64,9 @@ def client(db):
     with TestClient(app_prueba) as c:
         yield c
 
-# USUARIOS — representan los roles reales del negocio (US-12, US-13)
+
+# USUARIOS — representan los roles reales del negocio
+
 
 @pytest.fixture
 def admin(db):
@@ -83,6 +86,7 @@ def admin(db):
     db.refresh(usuario)
     return usuario
 
+
 @pytest.fixture
 def cajero(db):
     """
@@ -101,7 +105,9 @@ def cajero(db):
     db.refresh(usuario)
     return usuario
 
+
 # SUCURSAL — requerida como FK en cada venta
+
 
 @pytest.fixture
 def sucursal(db):
@@ -111,7 +117,9 @@ def sucursal(db):
     db.refresh(s)
     return s
 
-# PRODUCTOS — cubren los tres escenarios de stock más importantes (US-06, US-07)
+
+# PRODUCTOS — cubren los tres escenarios de stock más importantes
+
 
 @pytest.fixture
 def producto(db):
@@ -175,7 +183,9 @@ def producto_sin_stock(db):
     db.refresh(p)
     return p
 
+
 # SESIONES HTTP — simulan un usuario ya autenticado haciendo peticiones
+
 
 @pytest.fixture
 def sesion_admin(client, admin, sucursal):

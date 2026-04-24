@@ -1,12 +1,23 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, Text
+from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
+
 from .database import Base
-from datetime import datetime, timezone, timedelta
+
 
 class Usuario(Base):
     __tablename__ = "usuarios"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(100), unique=True, index=True, nullable=False)
     nombre = Column(String(100), nullable=False)
@@ -15,12 +26,13 @@ class Usuario(Base):
     activo = Column(Boolean, default=True)
     fecha_creacion = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone(timedelta(hours=-5)))
+        default=lambda: datetime.now(timezone(timedelta(hours=-5))),
     )
+
 
 class Producto(Base):
     __tablename__ = "productos"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     codigo = Column(String(50), unique=True, index=True)
     nombre = Column(String(100), nullable=False)
@@ -32,18 +44,20 @@ class Producto(Base):
     categoria = Column(String(50))
     activo = Column(Boolean, default=True)
 
+
 class Sucursal(Base):
     __tablename__ = "sucursales"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     direccion = Column(String(255))
     telefono = Column(String(20))
     activa = Column(Boolean, default=True)
 
+
 class Venta(Base):
     __tablename__ = "ventas"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     sucursal_id = Column(Integer, ForeignKey("sucursales.id"), nullable=False)
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
@@ -51,11 +65,11 @@ class Venta(Base):
 
     fecha_venta = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone(timedelta(hours=-5)))
+        default=lambda: datetime.now(timezone(timedelta(hours=-5))),
     )
 
     estado = Column(String(20), default="completada")  # completada, anulada
-    
+
     sucursal = relationship("Sucursal")
     usuario = relationship("Usuario")
     items = relationship("ItemVenta", back_populates="venta")
@@ -63,20 +77,21 @@ class Venta(Base):
 
 class ItemVenta(Base):
     __tablename__ = "items_venta"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     venta_id = Column(Integer, ForeignKey("ventas.id"), nullable=False)
     producto_id = Column(Integer, ForeignKey("productos.id"), nullable=False)
     cantidad = Column(Integer, nullable=False)
     precio_unitario = Column(Float, nullable=False)
     subtotal = Column(Float, nullable=False)
-    
+
     venta = relationship("Venta", back_populates="items")
     producto = relationship("Producto")
 
+
 class MovimientoInventario(Base):
     __tablename__ = "movimientos_inventario"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     producto_id = Column(Integer, ForeignKey("productos.id"), nullable=False)
     tipo_movimiento = Column(String(20), nullable=False)  # entrada, salida
@@ -88,15 +103,16 @@ class MovimientoInventario(Base):
 
     fecha_movimiento = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone(timedelta(hours=-5)))
+        default=lambda: datetime.now(timezone(timedelta(hours=-5))),
     )
-    
+
     producto = relationship("Producto")
     usuario = relationship("Usuario")
 
+
 class RegistroAuditoria(Base):
     __tablename__ = "registros_auditoria"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     usuario_id = Column(Integer, ForeignKey("usuarios.id"))
     tipo_accion = Column(String(50), nullable=False)
@@ -104,9 +120,9 @@ class RegistroAuditoria(Base):
 
     fecha_accion = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone(timedelta(hours=-5)))
+        default=lambda: datetime.now(timezone(timedelta(hours=-5))),
     )
 
     ip_address = Column(String(45))
-    
+
     usuario = relationship("Usuario")
