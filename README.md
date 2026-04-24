@@ -98,6 +98,8 @@ git clone https://github.com/tu-usuario/storevision.git
 cd storevision
 ```
 
+Cambiar al branch test/tests con el comando *git switch test/tests* para poder visualizar tanto la aplicacion principal como la parte de las pruebas.
+
 ### 2. Crear el entorno virtual
 
 Un entorno virtual aísla las dependencias del proyecto para que no interfieran con otros proyectos de Python en tu máquina.
