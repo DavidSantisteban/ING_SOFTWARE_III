@@ -270,10 +270,10 @@ pytest tests/test_pu_unitarias.py::TestAlertasStock::test_stock_igual_al_minimo_
 
 ```bash
 pip install pytest-cov
-pytest tests/ --cov=controllers --cov-report=term-missing
+pytest tests/ --cov=. --cov-report=term-missing
 ```
 
-El reporte muestra qué líneas de los controladores se ejecutaron durante las pruebas y cuáles no.
+El reporte muestra qué líneas de todas las pruebas realizadas se ejecutaron durante las pruebas y cuáles no.
 
 ### Verificar que los tests realmente detectan errores
 
