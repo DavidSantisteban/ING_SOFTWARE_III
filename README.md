@@ -104,12 +104,12 @@ Un entorno virtual aísla las dependencias del proyecto para que no interfieran 
 
 **En macOS / Linux:**
 ```bash
-python3 -m venv .venv
+python3.11 -m venv .venv
 ```
 
 **En Windows:**
 ```bash
-python -m venv .venv
+python3.11 -m venv .venv
 ```
 
 ### 3. Activar el entorno virtual
