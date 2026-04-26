@@ -3,14 +3,14 @@ test_ps_sistema.py — Pruebas de Sistema
 Nivel: Sistema | Técnica: Caja Negra | Tipo: Funcional + Seguridad + Rendimiento
 """
 
-import time
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pytest
-from models import modelos
 
 # FLUJO COMPLETO DE VENTA
+
 
 class TestFlujoDeVenta:
     """
@@ -34,7 +34,9 @@ class TestFlujoDeVenta:
             f"Detalle: {respuesta.json()}"
         )
 
-    def test_venta_descuenta_stock_en_base_de_datos(self, client, db, sesion_cajero, producto):
+    def test_venta_descuenta_stock_en_base_de_datos(
+        self, client, db, sesion_cajero, producto
+    ):
         """
         Después de confirmar la venta, el stock en la BD debe
         reflejar las unidades vendidas, sin necesidad de ninguna acción manual.
@@ -54,13 +56,16 @@ class TestFlujoDeVenta:
 
 # ANULACIÓN DE VENTAS CON CONTROL DE ROLES
 
+
 class TestAnulacionDeVentas:
     """
     Verifica el flujo de anulación y que los permisos funcionan
     correctamente a nivel HTTP.
     """
 
-    def test_administradora_puede_anular_venta(self, client, sesion_admin, sesion_cajero, producto):
+    def test_administradora_puede_anular_venta(
+        self, client, sesion_admin, sesion_cajero, producto
+    ):
         # El cajero registra la venta
         respuesta_venta = client.post(
             "/api/ventas",
@@ -99,7 +104,9 @@ class TestAnulacionDeVentas:
             "El cajero pudo anular una venta, lo cual representa un riesgo de fraude"
         )
 
+
 # ALERTAS DE INVENTARIO
+
 
 class TestAlertasDeInventario:
     """
@@ -120,9 +127,7 @@ class TestAlertasDeInventario:
             "El producto bajo mínimo no aparece en las alertas del sistema"
         )
 
-    def test_producto_con_stock_normal_no_genera_alerta_falsa(
-        self, client, producto
-    ):
+    def test_producto_con_stock_normal_no_genera_alerta_falsa(self, client, producto):
         ids_en_alerta = [
             a["producto_id"] for a in client.get("/api/inventario/alertas").json()
         ]
@@ -131,7 +136,9 @@ class TestAlertasDeInventario:
             "Un producto con stock normal apareció en alertas (falsa alarma)"
         )
 
+
 # CONTROL DE ROLES EN LA API
+
 
 class TestControlDeRoles:
     """
@@ -192,5 +199,3 @@ class TestControlDeRoles:
             f"La administradora no pudo crear un producto. "
             f"Código: {respuesta.status_code}, detalle: {respuesta.json()}"
         )
-
-
