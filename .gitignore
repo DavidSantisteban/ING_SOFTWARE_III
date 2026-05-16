@@ -11,4 +11,28 @@ Thumbs.db
 storevision.db
 .venv
 __pycache__
+.cov
+.hypothesis
+# Variables de entorno — contienen credenciales reales
+.env
+
+# Base de datos local — no pertenece al repositorio
+*.db
+*.sqlite
+*.sqlite3
+
+# Cobertura de código
 .coverage
+coverage.xml
+htmlcov/
+
+# Reportes de análisis
+mutation_report.txt
+bandit_report.txt
+reporte_bandit.json
+.safety-project.ini
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
