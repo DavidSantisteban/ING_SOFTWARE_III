@@ -5,9 +5,9 @@ name: Tests y Validación
 
 on:
   push:
-    branches: [ main, test/tests, security-test ]
+    branches: [test/tests, security-test ]
   pull_request:
-    branches: [ main, test/tests, security-test ]
+    branches: [test/tests, security-test ]
 
 jobs:
   test:
