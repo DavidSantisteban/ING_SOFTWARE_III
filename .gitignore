@@ -12,3 +12,6 @@ storevision.db
 .venv
 __pycache__
 .coverage
+reporte_bandit.json
+.safety-project.ini
+.env
