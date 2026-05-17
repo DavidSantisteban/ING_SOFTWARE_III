@@ -1,0 +1,38 @@
+# Archivo: .github/workflows/tests.yml
+# Propósito: Ejecutar pruebas automáticamente en cada push
+name: Tests y Validación
+on:
+  push:
+    branches: [test/tests, security-test]
+  pull_request:
+    branches: [test/tests, security-test]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Descargar el código
+      - uses: actions/checkout@v4
+
+      # Paso 2: Instalar Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Paso 3: Instalar dependencias
+      - name: Instalar dependencias
+        working-directory: ./Prototipos/Prototipo1
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      # Paso 4: Ejecutar pruebas unitarias
+      - name: Ejecutar pruebas
+        working-directory: ./Prototipos/Prototipo1
+        run: pytest tests/ -v
+
+      # Paso 5: Generar reporte de cobertura
+      - name: Generar reporte de cobertura
+        working-directory: ./Prototipos/Prototipo1
+        run: pytest tests/ --cov=controllers --cov-report=html
